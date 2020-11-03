@@ -45,13 +45,17 @@ for entry in string.gmatch(content, "APIEntry(%b{})") do
     entry = string.gsub(entry, "%@(%w+)(%b{})", repl_func)
     if not string.match(entry, "typedef") then
         local title = string.match(entry, "([%w_]+)%s*%b()")
+        local funcdef = string.sub(entry, 1, string.find(entry, "|") - 1)
         local body = string.sub(entry, string.find(entry, "|") + 1)
+        string.gsub(body, "^(%s+)", "")
         local filename = string.format("man3/%s.3", title)
         print(string.format("writing %s", filename))
         local entryfile = io.open(filename, "w")
         entryfile:write(string.format('.TH %s 3l ""\n', title))
-        entryfile:write(string.format('%s\n', body))
-        --entryfile:write(entry)
+        entryfile:write('.SH NAME\n')
+        entryfile:write(string.format('.B %s\n', funcdef))
+        entryfile:write('.SH DESCRIPTION\n')
+        entryfile:write(string.format('.PP\n%s\n', body))
         entryfile:close()
     end
 end
